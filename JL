@@ -1,0 +1,79 @@
+#IMPORTAR LIBRERIA 
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+from tkcalendar import DateEntry
+
+#VENTANA PRINCIPAL
+class EventSchedulerApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Gestor de Eventos")
+
+        # Frame para la visualización de eventos
+        self.frame_view = tk.Frame(root)
+        self.frame_view.pack(pady=10)
+
+        # TreeView para mostrar los eventos
+        self.tree = ttk.Treeview(self.frame_view, columns=("Date", "Time", "Description"), show='headings')
+        self.tree.heading("Date", text="Fecha")
+        self.tree.heading("Time", text="Hora")
+        self.tree.heading("Description", text="Descripción")
+        self.tree.pack()
+
+        # Frame para la entrada de datos
+        self.frame_input = tk.Frame(root)
+        self.frame_input.pack(pady=10)
+
+        # Etiquetas y campos de entrada
+        tk.Label(self.frame_input, text="Fecha:").grid(row=0, column=0)
+        self.date_entry = DateEntry(self.frame_input)
+        self.date_entry.grid(row=0, column=1)
+
+        tk.Label(self.frame_input, text="Hora:").grid(row=1, column=0)
+        self.time_entry = tk.Entry(self.frame_input)
+        self.time_entry.grid(row=1, column=1)
+
+        tk.Label(self.frame_input, text="Descripción:").grid(row=2, column=0)
+        self.desc_entry = tk.Entry(self.frame_input)
+        self.desc_entry.grid(row=2, column=1)
+
+        # Botones para acciones
+        self.button_frame = tk.Frame(root)
+        self.button_frame.pack(pady=10)
+
+        self.add_button = tk.Button(self.button_frame, text="Agregar Evento", command=self.add_event)
+        self.add_button.grid(row=0, column=0, padx=5)
+
+        self.remove_button = tk.Button(self.button_frame, text="Eliminar Evento Seleccionado", command=self.remove_event)
+        self.remove_button.grid(row=0, column=1, padx=5)
+
+        self.quit_button = tk.Button(self.button_frame, text="Salir", command=root.quit)
+        self.quit_button.grid(row=0, column=2, padx=5)
+
+    def add_event(self):
+        date = self.date_entry.get_date()
+        time = self.time_entry.get()
+        description = self.desc_entry.get()
+
+        if date and time and description:
+            self.tree.insert("", "end", values=(date, time, description))
+            self.date_entry.delete(0, 'end')
+            self.time_entry.delete(0, 'end')
+            self.desc_entry.delete(0, 'end')
+        else:
+            messagebox.showwarning("Advertencia", "Todos los campos deben ser completados")
+
+    def remove_event(self):
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showwarning("Advertencia", "Seleccione un evento para eliminar")
+            return
+
+        if messagebox.askokcancel("Confirmar", "¿Está seguro de que desea eliminar el evento seleccionado?"):
+            self.tree.delete(selected_item)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = EventSchedulerApp(root)
+    root.mainloop()
